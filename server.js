@@ -7,6 +7,7 @@ const dotenv = require("dotenv");
 
 //Requiring routes
 const auth = require("./routes/auth");
+const songs = require("./routes/songs");
 
 dotenv.config();
 
@@ -34,6 +35,7 @@ app.use(bodyParser.json());
 app.use(cors());
 
 app.use("/user", auth);
+app.use("/songs", songs);
 
 const PORT = process.env.PORT || 5000;
 

@@ -23,6 +23,19 @@ const usersSchema = new schema({
             ref: "Users",
         },
     ],
+    playlists: [
+        {
+            name: {
+                type: String,
+            },
+            songs: [
+                {
+                    type: Number,
+                    // unique: true,
+                },
+            ],
+        },
+    ],
 });
 
 const Users = mongoose.model("Users", usersSchema);
