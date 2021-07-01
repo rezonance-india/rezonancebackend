@@ -23,6 +23,12 @@ const usersSchema = new schema({
             ref: "Users",
         },
     ],
+    pending:[
+        {
+            type:ObjectId,
+            ref:"Users"
+        }
+    ],
     playlists: [
         {
             name: {
