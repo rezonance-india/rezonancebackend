@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const schema = mongoose.Schema;
 
-const { ObjectId } = schema;
+const { ObjectId } = schema.Types;
 
 const usersSchema = new schema({
     name: {
@@ -19,8 +19,8 @@ const usersSchema = new schema({
     },
     friends: [
         {
-            type: ObjectId,
-            ref: "Users",
+            type:ObjectId,
+            ref:"Users"
         },
     ],
     pending:[
