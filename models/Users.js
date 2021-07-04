@@ -34,12 +34,21 @@ const usersSchema = new schema({
             name: {
                 type: String,
             },
-            songs: [
-                {
-                    type: Number,
-                    unqiue: true,
+            songs: [{
+                
+                trackName:{
+                    type:String
                 },
-            ],
+                artistName:{
+                    type:String
+                },
+                albumArt:{
+                    type:String
+                },
+                trackUrl:{
+                    type:String
+                }
+            }]
         },
     ],
 });

@@ -3,64 +3,30 @@ const router = express.Router();
 const Users = require("../models/Users");
 const requireLogin = require("../middlewares/requireLogin");
 
-//Adding a friend
-// router.post("/addFriend", requireLogin, (req, res) => {
-//     const { friendId } = req.body;
-
-//     Users.findById(req.user._id).then((user) => {
-//         if (user.friends.length > 0) {
-//             var friend = user.friends.filter((friend) => {
-//                 friend === friendId;
-//             });
-//         }
-
-//         if (!friend) {
-//             Users.findByIdAndUpdate(
-//                 {
-//                     _id: req.user._id,
-//                 },
-//                 {
-//                     $push: {
-//                         friends: friendId,
-//                     },
-//                 },
-//                 {
-//                     new: true,
-//                     runValidators: true,
-//                 }
-//             )
-//                 .populate("friends", ["_id", "name"])
-//                 .then((user) => {
-//                     res.status(200).json(user);
-//                 })
-//                 .catch((err) => {
-//                     res.status(400).json(err);
-//                 });
-//         } else {
-//             res.status(400).json({
-//                 message: "Alredy added as friend",
-//             });
-//         }
-//     });
-// });
-
 //Sending friend request
 router.post("/addFriend",requireLogin,(req,res) => {
 
     const {friendId} = req.body;
 
+    console.log(req.user._id,"id");
+
     Users.findByIdAndUpdate({
         _id:friendId
     },{
-        $push:{
-            pending:req.user_id
+        $addToSet:{
+            pending:req.user._id
         }
     },{
         new:true,
-        runValidators:true
+        runValidators:true,
+        useFindAndModify:true
     }).then((friend) => {
         res.status(200).json({
             friend
+        })
+    }).catch((err) => {
+        res.status(400).json({
+            err
         })
     }).catch((err) => {
         res.status(400).json({
@@ -70,21 +36,23 @@ router.post("/addFriend",requireLogin,(req,res) => {
 })
 
 //Accepting friend request
-router.post("/acceptFriendRequest",(req,res) => {
+router.post("/acceptFriendRequest",requireLogin,(req,res) => {
 
     const {friendId} = req.body;
 
-    Users.findById(req.user._id).then((user) => {
+    Users.findById({
+        _id:req.user._id
+    }).then((user) => {
         var pending = user.pending.filter((pendingFriend) => {
             pendingFriend === friendId;
         });
 
         if(pending){
             //Adding other person as friends in your list and removing from pending
-            User.findByIdAndUpdate({
-                id:req.user_id
+            Users.findByIdAndUpdate({
+                _id:req.user._id
             },{
-                $push:{
+                $addToSet:{
                     friends:friendId
                 },
                 $pull:{
@@ -116,7 +84,7 @@ router.post("/acceptFriendRequest",(req,res) => {
                 new:true,
                 runValidators:true
             }).populate("friends", ["_id", "name"])
-            then((friend) =>{
+            .then((friend) =>{
                 console.log(friend,"friends");
             }).catch((err) => {
                 res.status(400).json({
@@ -128,7 +96,7 @@ router.post("/acceptFriendRequest",(req,res) => {
 })
 
 //Reject Request
-router.post("/rejectRequest",(req,res) => {
+router.post("/rejectRequest",requireLogin,(req,res) => {
     const {friendId} = req.body;
 
     Users.findByIdAndUpdate({
@@ -174,6 +142,28 @@ router.post("/removeFriend", requireLogin, (req, res) => {
         .populate("friends", ["_id", "name"])
         .then((user) => {
             res.status(200).json(user);
+        })
+        .catch((err) => {
+            res.status(400).json(err);
+        });
+
+    Users.findByIdAndUpdate(
+        {
+            _id: friendId,
+        },
+        {
+            $pull: {
+                friends: req.user._id,
+            },
+        },
+        {
+            new: true,
+            runValidators: true,
+        }
+    )
+        .populate("friends", ["_id", "name"])
+        .then((user) => {
+            console.log(user,"friend's detail");
         })
         .catch((err) => {
             res.status(400).json(err);

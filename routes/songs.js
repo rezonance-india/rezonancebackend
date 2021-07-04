@@ -49,7 +49,7 @@ router.post("/newPlaylist", requireLogin, (req, res) => {
 
 //Add song to playlist
 router.post("/addSong", requireLogin, (req, res) => {
-    const { songId, playlistName } = req.body;
+    const { trackName,trackUrl,albumArt,artistName,playlistName } = req.body;
 
     Users.findById({
         _id: req.user._id,
@@ -69,7 +69,12 @@ router.post("/addSong", requireLogin, (req, res) => {
 
             console.log(playlist, "playlist");
 
-            playlist.songs.push(songId);
+            playlist.songs.push({
+                trackName,
+                trackUrl,
+                albumArt,
+                artistName
+            });
 
             user.playlists = playlist;
 
@@ -83,5 +88,95 @@ router.post("/addSong", requireLogin, (req, res) => {
         }
     });
 });
+
+//Add to liked songs
+router.post("/addToLikedSongs",requireLogin,(req,res) => {
+    
+    const {trackName,trackUrl,albumArt,artistName} = req.body;
+
+    const playlistName = "Liked Songs";
+
+    Users.findById({
+        _id:req.user._id
+    }).then((user) => {
+        
+        let playlistIndex = user.playlists.findIndex(
+            (playlist) => playlist.name === playlistName
+        );      
+
+        //If playlist of liked songs doesnt exist create it
+        if (playlistIndex === -1) {
+            Users.findOneAndUpdate(
+                {
+                    _id: req.user._id,
+                },
+                {
+                    $push: {
+                        playlists: {
+                            name: playlistName,
+                        },
+                    },
+                },
+                {
+                    new: true,
+                    runValidators: true,
+                }
+            )
+                .then((user) => {
+                    
+                    let playlistIndex = user.playlists.findIndex(
+                        (playlist) => playlist.name === playlistName
+                    );
+
+                    const playlist = user.playlists[playlistIndex];
+
+                    console.log(playlist, "playlist");
+
+                    playlist.songs.push({
+                        trackName,
+                        trackUrl,
+                        albumArt,
+                        artistName
+                    });
+
+                    user.playlists = playlist;
+
+                    user.save()
+                        .then((user) => {
+                            res.status(200).json(user);
+                        })
+                        .catch((err) => {
+                            res.status(400).json(err);
+                        });
+                })
+                .catch((err) => {
+                    res.status(400).json(err);
+                });
+        } else {
+
+            const playlist = user.playlists[playlistIndex];
+
+            console.log(playlist, "playlist");
+
+            playlist.songs.push({
+                trackName,
+                trackUrl,
+                albumArt,
+                artistName
+            });
+
+            user.playlists = playlist;
+
+            user.save()
+                .then((user) => {
+                    res.status(200).json(user);
+                })
+                .catch((err) => {
+                    res.status(400).json(err);
+                });
+        }
+    })
+})
+
 
 module.exports = router;

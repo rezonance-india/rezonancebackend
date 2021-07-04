@@ -120,6 +120,8 @@ router.post(
 
 router.get("/getUser", requireLogin, (req, res) => {
     Users.findById(req.user._id)
+        .populate("friends",["_id","name"])
+        .populate("pending",["_id","name"])
         .then((user) => {
             res.status(200).json(user);
         })
