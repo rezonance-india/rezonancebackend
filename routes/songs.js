@@ -14,8 +14,6 @@ router.post("/newPlaylist", requireLogin, (req, res) => {
             (playlist) => playlist.name === playlistName
         );
 
-        console.log(playlist, "pre playlist");
-
         if (playlist.length === 0) {
             Users.findOneAndUpdate(
                 {
@@ -65,18 +63,15 @@ router.post("/addSong", requireLogin, (req, res) => {
                 message: "Playlist doesnt exists",
             });
         } else {
-            const playlist = user.playlists[playlistIndex];
 
-            console.log(playlist, "playlist");
-
-            playlist.songs.push({
+            user.playlists[playlistIndex].songs.push({
                 trackName,
                 trackUrl,
                 albumArt,
                 artistName
             });
 
-            user.playlists = playlist;
+            console.log(user.playlists,"playlist");
 
             user.save()
                 .then((user) => {
@@ -128,18 +123,12 @@ router.post("/addToLikedSongs",requireLogin,(req,res) => {
                         (playlist) => playlist.name === playlistName
                     );
 
-                    const playlist = user.playlists[playlistIndex];
-
-                    console.log(playlist, "playlist");
-
-                    playlist.songs.push({
+                    user.playlists[playlistIndex].songs.push({
                         trackName,
                         trackUrl,
                         albumArt,
                         artistName
                     });
-
-                    user.playlists = playlist;
 
                     user.save()
                         .then((user) => {
@@ -154,26 +143,35 @@ router.post("/addToLikedSongs",requireLogin,(req,res) => {
                 });
         } else {
 
-            const playlist = user.playlists[playlistIndex];
+            Users.findById({
+                _id:req.user._id
+            }).then((user) => {
+        
+                let playlistIndex = user.playlists.findIndex(
+                    (playlist) => playlist.name === playlistName
+                );
 
-            console.log(playlist, "playlist");
+                const playlist = user.playlists[playlistIndex];
 
-            playlist.songs.push({
-                trackName,
-                trackUrl,
-                albumArt,
-                artistName
-            });
+                console.log(playlist, "playlist");
 
-            user.playlists = playlist;
-
-            user.save()
-                .then((user) => {
-                    res.status(200).json(user);
-                })
-                .catch((err) => {
-                    res.status(400).json(err);
+                playlist.songs.push({
+                    trackName,
+                    trackUrl,
+                    albumArt,
+                    artistName
                 });
+
+                user.playlists = playlist;
+
+                user.save()
+                    .then((user) => {
+                        res.status(200).json(user);
+                    })
+                    .catch((err) => {
+                        res.status(400).json(err);
+                    });
+            })
         }
     })
 })

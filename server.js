@@ -9,6 +9,7 @@ const dotenv = require("dotenv");
 const auth = require("./routes/auth");
 const friends = require("./routes/friends");
 const songs = require("./routes/songs");
+const messages = require("./routes/messages");
 
 dotenv.config();
 
@@ -38,6 +39,7 @@ app.use(cors());
 app.use("/user", auth);
 app.use("/songs", songs);
 app.use("/friends", friends);
+app.use("/messages",messages);
 
 const PORT = process.env.PORT || 5000;
 

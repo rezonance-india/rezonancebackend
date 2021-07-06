@@ -1,7 +1,7 @@
 const express = require("express");
 const requireLogin = require("../middlewares/requireLogin");
 const router = express.Router();
-const Messages = require("../routes/messages");
+const Messages = require("../models/Messages");
 
 //Send a new message
 router.post("/send",requireLogin,(req,res) => {
@@ -26,20 +26,34 @@ router.post("/send",requireLogin,(req,res) => {
                 $and:[{user:to},{to:req.user._id}]
             }
         ]
-    }).then((res) => {
-        if(res.data){
-            Message.findOneAndUpdate({
-                $or:[{
-                    user:req.user._id,to:req.user._id
-                }]
+    }).then((data) => {
+        if(data){
+            console.log("yes");
+
+            Messages.findOneAndUpdate({
+                $or:[
+                    {user:req.user._id},{to:req.user._id}
+                ]
             },{
-                $addToSet :{
-                    chats: {user: req.user._id, message:messageData}
+                $push :{
+                    chat: {user: req.user._id, message:messageData}
                 }
+            },
+            {
+                new:true,
+                runValidators:true,
+                useFindAndModify:true
             })
-            .populate("user",["name"]);
+            .populate("user",["name"])
+            .then((data) => {
+                console.log(data,"Data");
+                res.status(200).json(data);
+            }).catch((err) => {
+                res.status(400).json(err);
+            });
         }
         else {
+            console.log("no");
             const data = {
                 user:req.user._id,
                 to,
@@ -51,7 +65,7 @@ router.post("/send",requireLogin,(req,res) => {
                 ]
             }
 
-            const newChat = new Message(data);
+            const newChat = new Messages(data);
             
             newChat.save()
             .then((chat) => {
@@ -64,7 +78,19 @@ router.post("/send",requireLogin,(req,res) => {
     })  
 })
 
-//Get the users' chat list
-router.post("/getChatlist",(req,res) => {
-    
+//Get the messages from friends
+router.get("/getMessages",requireLogin,(req,res) => {
+    Messages.find({
+        $or:[{user:req.user._id},{to:req.user._id}]
+    })
+    .populate("to",["_id","name"])
+    .populate("user",["_id","name"])
+    .populate("chat.user",["_id","name"])
+    .then((data) => {
+        res.status(200).json(data);
+    }).catch((err) => {
+        res.status(400).json(err);
+    })
 })
+
+module.exports = router;

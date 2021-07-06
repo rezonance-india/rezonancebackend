@@ -35,7 +35,6 @@ const usersSchema = new schema({
                 type: String,
             },
             songs: [{
-                
                 trackName:{
                     type:String
                 },

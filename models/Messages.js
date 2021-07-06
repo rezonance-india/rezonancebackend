@@ -16,7 +16,7 @@ const messagesSchema = new schema({
     chat:[{
         user:{
             type:ObjectId,
-            ref:"userId"
+            ref:"Users"
         },
         message:{
             trackName:{
