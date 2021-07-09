@@ -103,7 +103,7 @@ router.post(
                         const { _id, email, password } = user;
                         res.json({
                             token,
-                            user: { _id, email, password },
+                            user,
                         });
                     } else {
                         return res.status(400).json({

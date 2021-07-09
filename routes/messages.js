@@ -86,6 +86,7 @@ router.get("/getMessages",requireLogin,(req,res) => {
     .populate("to",["_id","name"])
     .populate("user",["_id","name"])
     .populate("chat.user",["_id","name"])
+    .sort({"chat.date":1})
     .then((data) => {
         res.status(200).json(data);
     }).catch((err) => {
