@@ -20,7 +20,9 @@ router.post("/addFriend",requireLogin,(req,res) => {
         new:true,
         runValidators:true,
         useFindAndModify:true
-    }).then((friend) => {
+    }).populate("pending",["_id","name"])
+    .populate("friends",["_id","name"])
+    .then((friend) => {
         res.status(200).json({
             friend
         })
@@ -63,6 +65,7 @@ router.post("/acceptFriendRequest",requireLogin,(req,res) => {
                 runValidators:true
             })
             .populate("friends", ["_id", "name"])
+            .populate("pending",["_id","name"])
             .then((friends) => {
                 res.status(200).json({
                     friends
@@ -109,6 +112,7 @@ router.post("/rejectRequest",requireLogin,(req,res) => {
         new:true,
         runValidators:true
     })
+    .populate("pending",["_id","name"])
     .populate("friends", ["_id", "name"])
     .then((friends) => {
         res.status(200).json({
@@ -140,6 +144,7 @@ router.post("/removeFriend", requireLogin, (req, res) => {
         }
     )
         .populate("friends", ["_id", "name"])
+        .populate("pending",["_id","name"])
         .then((user) => {
             res.status(200).json(user);
         })
