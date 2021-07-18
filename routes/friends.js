@@ -187,4 +187,21 @@ router.get("/getAllFriends", requireLogin, (req, res) => {
         });
 });
 
+//List of all people to follow
+router.post("/getAllUsers",(req,res) => {
+    const {name} = req.body;
+
+    Users.find({
+        name:{
+            $regex:`^${name}`
+        }
+    }).populate("friends",["_id","name"])
+    .then((user) => {
+        res.status(200).json(user);
+    })
+    .catch((err) => {
+        res.status(400).json(err);
+    });
+})
+
 module.exports = router;
