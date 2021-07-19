@@ -193,7 +193,8 @@ router.post("/getAllUsers",(req,res) => {
 
     Users.find({
         name:{
-            $regex:`^${name}`
+            $regex:`^${name}`,
+            $options:"i"
         }
     }).populate("friends",["_id","name"])
     .then((user) => {

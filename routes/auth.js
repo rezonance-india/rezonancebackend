@@ -139,6 +139,8 @@ router.get("/getAUser",(req,res) => {
     Users.findById({
         _id
     })
+    .populate("friends",["_id","name"])
+    .populate("pending",["_id","name"])
     .then((user) => {
         res.status(200).json(user);
     }).catch((err) => {
