@@ -131,4 +131,21 @@ router.get("/getUser", requireLogin, (req, res) => {
             });
         });
 });
+
+router.get("/getAUser",(req,res) => {
+
+    const {_id} = req.body;
+
+    Users.findById({
+        _id
+    })
+    .then((user) => {
+        res.status(200).json(user);
+    }).catch((err) => {
+        res.status(400).json({
+            message: "User not found",
+        });
+    })
+})
+
 module.exports = router;
