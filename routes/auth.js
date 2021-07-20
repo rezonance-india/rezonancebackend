@@ -132,7 +132,7 @@ router.get("/getUser", requireLogin, (req, res) => {
         });
 });
 
-router.get("/getAUser",(req,res) => {
+router.post("/getAUser",(req,res) => {
 
     const {_id} = req.body;
 
