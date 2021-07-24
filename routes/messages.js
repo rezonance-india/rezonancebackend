@@ -44,7 +44,8 @@ router.post("/send",requireLogin,(req,res) => {
                 runValidators:true,
                 useFindAndModify:true
             })
-            .populate("user",["name"])
+            .populate("user",["name","_id"])
+            .populate("to",["_id","name"])
             .then((data) => {
                 console.log(data,"Data");
                 res.status(200).json(data);
