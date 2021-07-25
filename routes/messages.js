@@ -71,7 +71,8 @@ router.post("/send",requireLogin,(req,res) => {
             newChat.save()
             .then((chat) => {
                 chat.populate("user",["name","_id"])
-                .populate("to",["_id","name"]).execPopulate()
+                .populate("to",["_id","name"])
+                .populate("chat.user",["_id","name"]).execPopulate()
                 .then(() => {
                     res.status(200)
                     .json(chat);
