@@ -46,6 +46,7 @@ router.post("/send",requireLogin,(req,res) => {
             })
             .populate("user",["name","_id"])
             .populate("to",["_id","name"])
+            .populate("chat.user",["_id","name"])
             .then((data) => {
                 console.log(data,"Data");
                 res.status(200).json(data);
