@@ -70,8 +70,15 @@ router.post("/send",requireLogin,(req,res) => {
             
             newChat.save()
             .then((chat) => {
-                res.status(200)
-                .json(chat)
+                chat.populate("user",["name","_id"])
+                .populate("to",["_id","name"]).execPopulate()
+                .then(() => {
+                    res.status(200)
+                    .json(chat);
+                }).catch((err) => {
+                    res.status(400)
+                    .json(err);
+                })
             }).catch((err) => {
                 res.status(400).json(err);
             })
