@@ -81,7 +81,9 @@ router.post(
 
         Users.findOne({
             email,
-        }).then((user) => {
+        }).populate("pending",["_id","name"])
+          .populate("friends", ["_id", "name"])
+        then((user) => {
             if (!user) {
                 return res.status(400).json({
                     errors: [{ msg: "User not registered" }],
