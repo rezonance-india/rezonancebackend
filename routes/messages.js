@@ -8,13 +8,14 @@ router.post("/send",requireLogin,(req,res) => {
 
     const {to} = req.body;
 
-    const {trackName,albumArt,trackUrl,artistName} = req.body; 
+    const {trackName,albumArt,trackUrl,artistName,track_id} = req.body; 
 
     const messageData = {
         trackName,
         albumArt,
         trackUrl,
-        artistName
+        artistName,
+        track_id
     }
 
     Messages.findOne({

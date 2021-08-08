@@ -30,6 +30,9 @@ const messagesSchema = new schema({
             },
             trackUrl:{
                 type:String
+            },
+            track_id:{
+                type:String
             }
         },
         messageSentAt:{
