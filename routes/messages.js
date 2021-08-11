@@ -6,7 +6,7 @@ const Messages = require("../models/Messages");
 //Send a new message
 router.post("/send",requireLogin,(req,res) => {
 
-    const {to} = req.body;
+    const {to,userId} = req.body;
 
     const {trackName,albumArt,trackUrl,artistName,track_id} = req.body; 
 
@@ -21,10 +21,10 @@ router.post("/send",requireLogin,(req,res) => {
     Messages.findOne({
         $or:[
             {
-                $and:[{user : req.user._id},{to}]
+                $and:[{user : userId},{to}]
             },
             {
-                $and:[{user:to},{to:req.user._id}]
+                $and:[{user:to},{to:userId}]
             }
         ]
     }).then((data) => {
@@ -33,11 +33,11 @@ router.post("/send",requireLogin,(req,res) => {
 
             Messages.findOneAndUpdate({
                 $or:[
-                    {user:req.user._id},{to:req.user._id}
+                    {user:userId},{to:userId}
                 ]
             },{
                 $push :{
-                    chat: {user: req.user._id, message:messageData}
+                    chat: {user: userId, message:messageData}
                 }
             },
             {
@@ -58,11 +58,11 @@ router.post("/send",requireLogin,(req,res) => {
         else {
             console.log("no");
             const data = {
-                user:req.user._id,
+                user:userId,
                 to,
                 chat:[
                     {
-                        user:req.user._id,
+                        user:userId,
                         message:messageData
                     }
                 ]
@@ -90,9 +90,11 @@ router.post("/send",requireLogin,(req,res) => {
 })
 
 //Get the messages from friends
-router.get("/getMessages",requireLogin,(req,res) => {
+router.post("/getMessages",(req,res) => {
+    const {userId} = req.body;
+
     Messages.find({
-        $or:[{user:req.user._id},{to:req.user._id}]
+        $or:[{user:userId},{to:userId}]
     })
     .populate("to",["_id","name"])
     .populate("user",["_id","name"])
