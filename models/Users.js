@@ -5,16 +5,16 @@ const schema = mongoose.Schema;
 const { ObjectId } = schema.Types;
 
 const usersSchema = new schema({
+    username:{
+        type:String
+    },
     name: {
         type: String,
     },
     email: {
         type: String,
     },
-    phone: {
-        type: Number,
-    },
-    password: {
+    photo: {
         type: String,
     },
     friends: [

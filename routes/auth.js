@@ -9,119 +9,81 @@ const requireLogin = require("../middlewares/requireLogin");
 require("dotenv").config();
 const secret = process.env.JWT_SECRET;
 
-router.post(
-    "/signup",
-    [
-        body("name", "Please provide a valid name").not().isEmpty(),
-        body("phone", "Please provide a phone number").not().isEmpty(),
-        body("email", "Please provide a valid email address").isEmail(),
-        body(
-            "password",
-            "Please provide a password altleast 6 characters long"
-        ).isLength({ min: 6 }),
-    ],
-    (req, res) => {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return res.status(400).json({ errors: errors.array() });
+router.post("/signup",(req,res) => {
+        
+    const { name, photo, email} = req.body;
+
+    //Checking if the user is already signed up or not
+    Users.findOne({
+        email,
+    }).populate("pending",["_id","name"])
+    .populate("friends", ["_id", "name"])
+    .then((user) => {
+        if (user) {
+            //The user details are already saved, so return the current user
+            res.status(200).json({
+                user
+            });        
         }
-
-        const { name, phone, email, password } = req.body;
-
-        //Checking if the user is already signed up or not
-        Users.findOne({
-            email,
-        }).then((user) => {
-            if (user) {
-                return res.status(400).json({
-                    errors: [{ msg: "Email already exists" }],
-                });
-            }
-
-            //If not save the new User
-            bcrypt.hash(password, 10).then((hashedPass) => {
-                const newUser = new Users({
-                    name,
-                    phone,
-                    email,
-                    password: hashedPass,
-                });
-
-                newUser
-                    .save()
-                    .then((saveduser) => {
-                        res.status(200).json(saveduser);
-                    })
-                    .catch((err) => {
-                        console.log(err);
-                    })
-                    .catch((err) => {
-                        console.log(err);
-                    });
+        else{
+            const newUser = new Users({
+                name,
+                email,
+                photo,
             });
-        });
-    }
-);
 
-router.post(
-    "/signin",
-    [
-        body("email", "Please provide a valid email address").isEmail(),
-        body("password", "Please provide a password").not().isEmpty(),
-    ],
-    (req, res) => {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return res.status(400).json({ errors: errors.array() });
-        }
-
-        const { email, password } = req.body;
-
-        //Checking if the user has registered or not
-
-        Users.findOne({
-            email,
-        }).populate("pending",["_id","name"])
-          .populate("friends", ["_id", "name"])
-        .then((user) => {
-            if (!user) {
-                return res.status(400).json({
-                    errors: [{ msg: "User not registered" }],
-                });
-            }
-
-            bcrypt
-                .compare(password, user.password)
-                .then((isMatch) => {
-                    if (isMatch) {
-                        //If password matches then issue a token depending upon the payload given
-                        const token = jwt.sign(
-                            {
-                                _id: user._id,
-                            },
-                            secret
-                        );
-
-                        const { _id, email, password } = user;
-                        res.json({
-                            token,
-                            user,
-                        });
-                    } else {
-                        return res.status(400).json({
-                            errors: [{ msg: "Invalid Credentials." }],
-                        });
-                    }
+            newUser
+                .save()
+                .then((savedUser) => {
+                    res.status(200).json({
+                        user:savedUser
+                    })
                 })
                 .catch((err) => {
                     console.log(err);
                 });
-        });
-    }
-);
 
-router.get("/getUser", requireLogin, (req, res) => {
-    Users.findById(req.user._id)
+        }
+    });    
+})
+
+router.post("/updateUsername",(req,res) => {
+
+    const {username,email} = req.body;
+
+    Users.findOne({
+        username
+    }).then((user) =>{
+        if(user){
+            res.status(400).json({
+                message:"Username already exists"
+            })
+        }
+        else{
+            Users.findOneAndUpdate({
+                email
+            },{
+                $set:{
+                    username
+                }
+            },{
+                new:true,
+                runValidators:true
+            }).then((user) => {
+                res.status(200).json(user);
+            }).catch((err) => {
+                res.status(200).json(err);
+            })
+        }
+    })
+})
+
+
+router.post("/getUser", (req, res) => {
+
+    const {userId} = req.body;
+
+    Users.findById(userId)
         .populate("friends",["_id","name"])
         .populate("pending",["_id","name"])
         .then((user) => {
