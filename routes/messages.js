@@ -4,8 +4,9 @@ const router = express.Router();
 const Messages = require("../models/Messages");
 
 //Send a new message
-router.post("/send",requireLogin,(req,res) => {
+router.post("/send",(req,res) => {
 
+    console.log("in");
     const {to,userId} = req.body;
 
     const {trackName,albumArt,trackUrl,artistName,track_id} = req.body; 
@@ -45,9 +46,9 @@ router.post("/send",requireLogin,(req,res) => {
                 runValidators:true,
                 useFindAndModify:true
             })
-            .populate("user",["name","_id"])
-            .populate("to",["_id","name"])
-            .populate("chat.user",["_id","name"])
+            .populate("user",["name","_id","username"])
+            .populate("to",["_id","name","username"])
+            .populate("chat.user",["_id","name","username"])
             .then((data) => {
                 console.log(data,"Data");
                 res.status(200).json(data);
@@ -72,9 +73,9 @@ router.post("/send",requireLogin,(req,res) => {
             
             newChat.save()
             .then((chat) => {
-                chat.populate("user",["name","_id"])
-                .populate("to",["_id","name"])
-                .populate("chat.user",["_id","name"]).execPopulate()
+                chat.populate("user",["name","_id","username"])
+                .populate("to",["_id","name","username"])
+                .populate("chat.user",["_id","name","username"]).execPopulate()
                 .then(() => {
                     res.status(200)
                     .json(chat);
@@ -96,9 +97,9 @@ router.post("/getMessages",(req,res) => {
     Messages.find({
         $or:[{user:userId},{to:userId}]
     })
-    .populate("to",["_id","name"])
-    .populate("user",["_id","name"])
-    .populate("chat.user",["_id","name"])
+    .populate("to",["_id","name","username"])
+    .populate("user",["_id","name","username"])
+    .populate("chat.user",["_id","name","username"])
     .sort({"chat.date":1})
     .then((data) => {
         res.status(200).json(data);

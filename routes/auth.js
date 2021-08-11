@@ -16,8 +16,8 @@ router.post("/signup",(req,res) => {
     //Checking if the user is already signed up or not
     Users.findOne({
         email,
-    }).populate("pending",["_id","name"])
-    .populate("friends", ["_id", "name"])
+    }).populate("pending",["_id","name","username"])
+    .populate("friends", ["_id", "name","username"])
     .then((user) => {
         if (user) {
             //The user details are already saved, so return the current user
@@ -70,7 +70,9 @@ router.post("/updateUsername",(req,res) => {
                 new:true,
                 runValidators:true
             }).then((user) => {
-                res.status(200).json(user);
+                res.status(200).json({
+                    user
+                });
             }).catch((err) => {
                 res.status(200).json(err);
             })
@@ -84,8 +86,8 @@ router.post("/getUser", (req, res) => {
     const {userId} = req.body;
 
     Users.findById(userId)
-        .populate("friends",["_id","name"])
-        .populate("pending",["_id","name"])
+        .populate("friends",["_id","name","username"])
+        .populate("pending",["_id","name","username"])
         .then((user) => {
             res.status(200).json(user);
         })
@@ -103,7 +105,7 @@ router.post("/getAUser",(req,res) => {
     Users.findById({
         _id
     })
-    .populate("friends",["_id","name"])
+    .populate("friends",["_id","name","username"])
     .then((user) => {
         res.status(200).json(user);
     }).catch((err) => {
