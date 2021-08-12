@@ -33,8 +33,8 @@ router.post("/newPlaylist", (req, res) => {
                     runValidators: true,
                 }
             )
-                .populate("friends",["_id","name","username"])
-                .populate("pending",["_id","name","username"])
+                .populate("friends",["_id","name","username","photo"])
+                .populate("pending",["_id","name","username","photo"])
                 .then((user) => {
                     res.status(200).json(user);
                 })

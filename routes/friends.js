@@ -18,8 +18,8 @@ router.post("/addFriend",(req,res) => {
         new:true,
         runValidators:true,
         useFindAndModify:true
-    }).populate("pending",["_id","name","username"])
-    .populate("friends",["_id","name","username"])
+    }).populate("pending",["_id","name","username","photo"])
+    .populate("friends",["_id","name","username","photo"])
     .then((friend) => {
         res.status(200).json({
             friend
@@ -62,8 +62,8 @@ router.post("/acceptFriendRequest",(req,res) => {
                 new:true,
                 runValidators:true
             })
-            .populate("friends", ["_id", "name","username"])
-            .populate("pending",["_id","name","username"])
+            .populate("friends", ["_id", "name","username","photo"])
+            .populate("pending",["_id","name","username","photo"])
             .then((friends) => {
                 res.status(200).json({
                     friends
@@ -84,7 +84,7 @@ router.post("/acceptFriendRequest",(req,res) => {
             },{
                 new:true,
                 runValidators:true
-            }).populate("friends", ["_id", "name","username"])
+            }).populate("friends", ["_id", "name","username","photo"])
             .then((friend) =>{
                 console.log(friend,"friends");
             }).catch((err) => {
@@ -110,8 +110,8 @@ router.post("/rejectRequest",(req,res) => {
         new:true,
         runValidators:true
     })
-    .populate("pending",["_id","name","username"])
-    .populate("friends", ["_id", "name","username"])
+    .populate("pending",["_id","name","username","photo"])
+    .populate("friends", ["_id", "name","username","photo"])
     .then((friends) => {
         res.status(200).json({
             friends
@@ -141,8 +141,8 @@ router.post("/removeFriend", (req, res) => {
             runValidators: true,
         }
     )
-        .populate("friends", ["_id", "name","username"])
-        .populate("pending",["_id","name","username"])
+        .populate("friends", ["_id", "name","username","photo"])
+        .populate("pending",["_id","name","username","photo"])
         .then((user) => {
             res.status(200).json(user);
         })
@@ -164,7 +164,7 @@ router.post("/removeFriend", (req, res) => {
             runValidators: true,
         }
     )
-        .populate("friends", ["_id", "name","username"])
+        .populate("friends", ["_id", "name","username","photo"])
         .then((user) => {
             console.log(user,"friend's detail");
         })
@@ -179,7 +179,7 @@ router.post("/getAllFriends", (req, res) => {
     const {userId} = req.b
 
     Users.findById(userId)
-        .populate("friends", ["_id", "name","username"])
+        .populate("friends", ["_id", "name","username","photo"])
         .then((user) => {
             res.status(200).json(user);
         })
@@ -197,7 +197,7 @@ router.post("/getAllUsers",(req,res) => {
             $regex:`^${name}`,
             $options:"i"
         }
-    }).populate("friends",["_id","name","username"])
+    }).populate("friends",["_id","name","username","photo"])
     .then((user) => {
         res.status(200).json(user);
     })

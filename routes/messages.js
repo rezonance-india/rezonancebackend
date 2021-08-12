@@ -46,9 +46,9 @@ router.post("/send",(req,res) => {
                 runValidators:true,
                 useFindAndModify:true
             })
-            .populate("user",["name","_id","username"])
-            .populate("to",["_id","name","username"])
-            .populate("chat.user",["_id","name","username"])
+            .populate("user",["name","_id","username","photo"])
+            .populate("to",["_id","name","username","photo"])
+            .populate("chat.user",["_id","name","username","photo"])
             .then((data) => {
                 console.log(data,"Data");
                 res.status(200).json(data);
@@ -73,9 +73,9 @@ router.post("/send",(req,res) => {
             
             newChat.save()
             .then((chat) => {
-                chat.populate("user",["name","_id","username"])
-                .populate("to",["_id","name","username"])
-                .populate("chat.user",["_id","name","username"]).execPopulate()
+                chat.populate("user",["name","_id","username","photo"])
+                .populate("to",["_id","name","username","photo"])
+                .populate("chat.user",["_id","name","username","photo"]).execPopulate()
                 .then(() => {
                     res.status(200)
                     .json(chat);
@@ -97,9 +97,9 @@ router.post("/getMessages",(req,res) => {
     Messages.find({
         $or:[{user:userId},{to:userId}]
     })
-    .populate("to",["_id","name","username"])
-    .populate("user",["_id","name","username"])
-    .populate("chat.user",["_id","name","username"])
+    .populate("to",["_id","name","username","photo"])
+    .populate("user",["_id","name","username","photo"])
+    .populate("chat.user",["_id","name","username","photo"])
     .sort({"chat.date":1})
     .then((data) => {
         res.status(200).json(data);
