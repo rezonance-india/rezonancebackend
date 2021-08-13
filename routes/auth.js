@@ -47,7 +47,12 @@ router.post("/signup",(req,res) => {
     });    
 })
 
-router.post("/updateUsername",(req,res) => {
+router.post(
+    "/updateUsername",
+    [
+        body("username","Please provide a username").not().isEmpty()
+    ]
+    ,(req,res) => {
 
     const {username,email} = req.body;
 

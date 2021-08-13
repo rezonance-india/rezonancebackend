@@ -78,7 +78,7 @@ router.post("/acceptFriendRequest",(req,res) => {
             Users.findByIdAndUpdate({
                 _id:friendId
             },{
-                $push:{
+                $addToSet:{
                     friends:userId
                 }
             },{
