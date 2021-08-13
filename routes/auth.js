@@ -74,7 +74,9 @@ router.post(
             },{
                 new:true,
                 runValidators:true
-            }).then((user) => {
+            }).populate("pending",["_id","name","username","photo"])
+            .populate("friends", ["_id", "name","username","photo"])
+            .then((user) => {
                 res.status(200).json({
                     user
                 });
@@ -109,7 +111,7 @@ router.post("/getAUser",(req,res) => {
 
     Users.findById({
         _id
-    })
+    }).populate("pending",["_id","name","username","photo"])
     .populate("friends",["_id","name","username","photo"])
     .then((user) => {
         res.status(200).json(user);
