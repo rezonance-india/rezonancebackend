@@ -36,8 +36,13 @@ router.post("/send",(req,res) => {
             console.log("yes");
 
             Messages.findOneAndUpdate({
-                $and:[
-                    {user:userId},{to}
+                $or:[
+                    {
+                        $and:[{user : userId},{to}]
+                    },
+                    {
+                        $and:[{user:to},{to:userId}]
+                    }
                 ]
             },{
                 $push :{
