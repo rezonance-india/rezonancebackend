@@ -9,6 +9,9 @@ router.post("/send",(req,res) => {
     console.log("in");
     const {to,userId} = req.body;
 
+    console.log(to,userId);
+    
+    console.log(typeof(to),typeof(userId));
     const {trackName,albumArt,trackUrl,artistName,track_id} = req.body; 
 
     const messageData = {
@@ -33,8 +36,8 @@ router.post("/send",(req,res) => {
             console.log("yes");
 
             Messages.findOneAndUpdate({
-                $or:[
-                    {user:userId},{to:userId}
+                $and:[
+                    {user:userId},{to}
                 ]
             },{
                 $push :{
