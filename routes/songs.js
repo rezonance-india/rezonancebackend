@@ -4,13 +4,12 @@ const Users = require("../models/Users");
 const requireLogin = require("../middlewares/requireLogin");
 
 //Create a new playlist
-router.post("/newPlaylist", (req, res) => {
-    const { playlistName,userId } = req.body;
+router.post("/newPlaylist",requireLogin,(req, res) => {
+    const { playlistName} = req.body;
 
     Users.findByIdAndUpdate({
-        _id: userId,
+        _id: req.user._id,
     }).then((user) => {
-        console.log(user,"user");
 
         const playlist = user.playlists.filter(
             (playlist) => playlist.name === playlistName
@@ -19,7 +18,7 @@ router.post("/newPlaylist", (req, res) => {
         if (playlist.length === 0) {
             Users.findOneAndUpdate(
                 {
-                    _id: userId,
+                    _id: req.user._id,
                 },
                 {
                     $push: {
@@ -50,19 +49,15 @@ router.post("/newPlaylist", (req, res) => {
 });
 
 //Add song to playlist
-router.post("/addSong", (req, res) => {
-    const { trackName,trackUrl,albumArt,artistName,playlistName,userId } = req.body;
-
-    console.log(playlistName,userId);
+router.post("/addSong",requireLogin,(req, res) => {
+    const { trackName,trackUrl,albumArt,artistName,playlistName } = req.body;
 
     Users.findById({
-        _id: userId,
+        _id: req.user._id,
     }).then((user) => {
         let playlistIndex = user.playlists.findIndex(
             (playlist) => playlist.name === playlistName
         );
-
-        console.log(playlistIndex, "index");
 
         if (playlistIndex === -1) {
             res.status(400).json({
@@ -91,14 +86,14 @@ router.post("/addSong", (req, res) => {
 });
 
 //Add to liked songs
-router.post("/addToLikedSongs",(req,res) => {
+router.post("/addToLikedSongs",requireLogin,(req,res) => {
     
-    const {trackName,trackUrl,albumArt,artistName,userId} = req.body;
+    const {trackName,trackUrl,albumArt,artistName} = req.body;
 
     const playlistName = "Liked Songs";
 
     Users.findById({
-        _id:userId
+        _id:req.user._id
     }).then((user) => {
         
         let playlistIndex = user.playlists.findIndex(
@@ -109,7 +104,7 @@ router.post("/addToLikedSongs",(req,res) => {
         if (playlistIndex === -1) {
             Users.findOneAndUpdate(
                 {
-                    _id: userId,
+                    _id: req.user._id,
                 },
                 {
                     $push: {
@@ -150,7 +145,7 @@ router.post("/addToLikedSongs",(req,res) => {
         } else {
 
             Users.findById({
-                _id:userId
+                _id:req.user._id
             }).then((user) => {
         
                 let playlistIndex = user.playlists.findIndex(

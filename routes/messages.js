@@ -4,14 +4,10 @@ const router = express.Router();
 const Messages = require("../models/Messages");
 
 //Send a new message
-router.post("/send",(req,res) => {
+router.post("/send",requireLogin,(req,res) => {
 
-    console.log("in");
-    const {to,userId} = req.body;
-
-    console.log(to,userId);
+    const {to} = req.body;
     
-    console.log(typeof(to),typeof(userId));
     const {trackName,albumArt,trackUrl,artistName,track_id} = req.body; 
 
     const messageData = {
@@ -25,10 +21,10 @@ router.post("/send",(req,res) => {
     Messages.findOne({
         $or:[
             {
-                $and:[{user : userId},{to}]
+                $and:[{user : req.user._id},{to}]
             },
             {
-                $and:[{user:to},{to:userId}]
+                $and:[{user:to},{to:req.user._id}]
             }
         ]
     }).then((data) => {
@@ -38,15 +34,15 @@ router.post("/send",(req,res) => {
             Messages.findOneAndUpdate({
                 $or:[
                     {
-                        $and:[{user : userId},{to}]
+                        $and:[{user : req.user._id},{to}]
                     },
                     {
-                        $and:[{user:to},{to:userId}]
+                        $and:[{user:to},{to:req.user._id}]
                     }
                 ]
             },{
                 $push :{
-                    chat: {user: userId, message:messageData}
+                    chat: {user: req.user._id, message:messageData}
                 }
             },
             {
@@ -65,13 +61,12 @@ router.post("/send",(req,res) => {
             });
         }
         else {
-            console.log("no");
             const data = {
-                user:userId,
+                user:req.user._id,
                 to,
                 chat:[
                     {
-                        user:userId,
+                        user:req.user._id,
                         message:messageData
                     }
                 ]
@@ -99,16 +94,15 @@ router.post("/send",(req,res) => {
 })
 
 //Get the messages from friends
-router.post("/getMessages",(req,res) => {
-    const {userId} = req.body;
+router.get("/getMessages",requireLogin,(req,res) => {
 
     Messages.find({
-        $or:[{user:userId},{to:userId}]
+        $or:[{user:req.user._id},{to:req.user._id}]
     })
     .populate("to",["_id","name","username","photo"])
     .populate("user",["_id","name","username","photo"])
     .populate("chat.user",["_id","name","username","photo"])
-    .sort({"chat.date":1})
+    .sort({"chat.messageSentAt":1})
     .then((data) => {
         res.status(200).json(data);
     }).catch((err) => {

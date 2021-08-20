@@ -20,9 +20,17 @@ router.post("/signup",(req,res) => {
     .populate("friends", ["_id", "name","username","photo"])
     .then((user) => {
         if (user) {
+            
+            const token = jwt.sign(
+            {
+                _id: user._id,
+            },
+                secret
+            );
             //The user details are already saved, so return the current user
             res.status(200).json({
-                user
+                user,
+                token
             });        
         }
         else{
@@ -35,8 +43,16 @@ router.post("/signup",(req,res) => {
             newUser
                 .save()
                 .then((savedUser) => {
+                    const token = jwt.sign(
+                    {
+                        _id: savedUser._id,
+                    },  
+                        secret
+                    );
+
                     res.status(200).json({
-                        user:savedUser
+                        user:savedUser,
+                        token
                     })
                 })
                 .catch((err) => {
@@ -52,7 +68,7 @@ router.post(
     [
         body("username","Please provide a username").not().isEmpty()
     ]
-    ,(req,res) => {
+    ,requireLogin,(req,res) => {
 
     const {username,email} = req.body;
 
@@ -77,9 +93,11 @@ router.post(
             }).populate("pending",["_id","name","username","photo"])
             .populate("friends", ["_id", "name","username","photo"])
             .then((user) => {
+
                 res.status(200).json({
                     user
                 });
+
             }).catch((err) => {
                 res.status(200).json(err);
             })
@@ -88,11 +106,9 @@ router.post(
 })
 
 
-router.post("/getUser", (req, res) => {
+router.get("/getUser",requireLogin,(req, res) => {
 
-    const {userId} = req.body;
-
-    Users.findById(userId)
+    Users.findById(req.user._id)
         .populate("friends",["_id","name","username",,"photo"])
         .populate("pending",["_id","name","username","photo"])
         .then((user) => {
@@ -105,13 +121,10 @@ router.post("/getUser", (req, res) => {
         });
 });
 
-router.post("/getAUser",(req,res) => {
+router.post("/getAUser",requireLogin,(req,res) => {
 
-    const {_id} = req.body;
-
-    Users.findById({
-        _id
-    }).populate("pending",["_id","name","username","photo"])
+    Users.findById(req.user._id)
+    .populate("pending",["_id","name","username","photo"])
     .populate("friends",["_id","name","username","photo"])
     .then((user) => {
         res.status(200).json(user);

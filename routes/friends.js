@@ -4,15 +4,15 @@ const Users = require("../models/Users");
 const requireLogin = require("../middlewares/requireLogin");
 
 //Sending friend request
-router.post("/addFriend",(req,res) => {
+router.post("/addFriend",requireLogin,(req,res) => {
 
-    const {friendId,userId} = req.body;
+    const {friendId} = req.body;
 
     Users.findByIdAndUpdate({
         _id:friendId
     },{
         $addToSet:{
-            pending:userId
+            pending:req.user._id
         }
     },{
         new:true,
@@ -36,12 +36,12 @@ router.post("/addFriend",(req,res) => {
 })
 
 //Accepting friend request
-router.post("/acceptFriendRequest",(req,res) => {
+router.post("/acceptFriendRequest",requireLogin,(req,res) => {
 
-    const {friendId,userId} = req.body;
+    const {friendId} = req.body;
 
     Users.findById({
-        _id:userId
+        _id:req.user._id
     }).then((user) => {
         var pending = user.pending.filter((pendingFriend) => {
             pendingFriend === friendId;
@@ -50,7 +50,7 @@ router.post("/acceptFriendRequest",(req,res) => {
         if(pending){
             //Adding other person as friends in your list and removing from pending
             Users.findByIdAndUpdate({
-                _id:userId
+                _id:req.user._id
             },{
                 $addToSet:{
                     friends:friendId
@@ -79,7 +79,7 @@ router.post("/acceptFriendRequest",(req,res) => {
                 _id:friendId
             },{
                 $addToSet:{
-                    friends:userId
+                    friends:req.user._id
                 }
             },{
                 new:true,
@@ -97,11 +97,11 @@ router.post("/acceptFriendRequest",(req,res) => {
 })
 
 //Reject Request
-router.post("/rejectRequest",(req,res) => {
-    const {friendId,userId} = req.body;
+router.post("/rejectRequest",requireLogin,(req,res) => {
+    const {friendId} = req.body;
 
     Users.findByIdAndUpdate({
-        _id:userId
+        _id:req.user._id
     },{
         $pull:{
             pending:friendId
@@ -124,12 +124,12 @@ router.post("/rejectRequest",(req,res) => {
 })
 
 //Remove a friend
-router.post("/removeFriend", (req, res) => {
-    const { friendId,userId} = req.body;
+router.post("/removeFriend",requireLogin, (req, res) => {
+    const { friendId} = req.body;
 
     Users.findByIdAndUpdate(
         {
-            _id: userId,
+            _id: req.user._id,
         },
         {
             $pull: {
@@ -156,7 +156,7 @@ router.post("/removeFriend", (req, res) => {
         },
         {
             $pull: {
-                friends: userId,
+                friends: req.user._id,
             },
         },
         {
@@ -174,11 +174,11 @@ router.post("/removeFriend", (req, res) => {
 });
 
 //List all friends
-router.post("/getAllFriends", (req, res) => {
+router.post("/getAllFriends", requireLogin,(req, res) => {
 
-    const {userId} = req.b
+    // const {userId} = req.body;
 
-    Users.findById(userId)
+    Users.findById(req.user._id)
         .populate("friends", ["_id", "name","username","photo"])
         .then((user) => {
             res.status(200).json(user);
@@ -189,7 +189,7 @@ router.post("/getAllFriends", (req, res) => {
 });
 
 //List of all people to follow
-router.post("/getAllUsers",(req,res) => {
+router.post("/getAllUsers",requireLogin,(req,res) => {
     const {name} = req.body;
 
     Users.find({
