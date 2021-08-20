@@ -123,7 +123,9 @@ router.get("/getUser",requireLogin,(req, res) => {
 
 router.post("/getAUser",requireLogin,(req,res) => {
 
-    Users.findById(req.user._id)
+    const {userId} = req.body;
+        
+    Users.findById(userId)
     .populate("pending",["_id","name","username","photo"])
     .populate("friends",["_id","name","username","photo"])
     .then((user) => {
