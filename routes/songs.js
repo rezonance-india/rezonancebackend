@@ -76,6 +76,14 @@ router.post("/addSong",requireLogin,(req, res) => {
 
             user.save()
                 .then((user) => {
+                    user.populate("friends",["_id","name","username","photo"])
+                    .populate("pending",["_id","name","username","photo"])
+                    .execPopulate().then(() => {
+                        res.status(200)
+                        .json(user);
+                    }).catch((err) => {
+                        res.status(400).json(err);
+                    })
                     res.status(200).json(user);
                 })
                 .catch((err) => {
@@ -110,6 +118,14 @@ router.post("/deletePlaylist",requireLogin,(req,res) => {
 
             user.save()
             .then((user) => {
+                user.populate("friends",["_id","name","username","photo"])
+                .populate("pending",["_id","name","username","photo"])
+                .execPopulate().then(() => {
+                    res.status(200)
+                    .json(user);
+                }).catch((err) => {
+                    res.status(400).json(err);
+                })
                 res.status(200).json(user);
             }).catch((err) => {
                 res.status(400).json(err);
