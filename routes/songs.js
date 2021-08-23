@@ -93,12 +93,12 @@ router.post("/addSong",requireLogin,(req, res) => {
     });
 });
 
-router.post("/deletePlaylist",requireLogin,(req,res) => {
+router.post("/deletePlaylist",(req,res) => {
 
     const {playlistId} = req.body;
 
     Users.findById({
-        _id:req.user._id
+        _id:"612021e37970e3001642e496"
     }).then((user) => {
         let playlistIndex = user.playlists.findIndex((playlist) => {
             return playlist._id.toString() == playlistId
@@ -117,16 +117,15 @@ router.post("/deletePlaylist",requireLogin,(req,res) => {
             user.playlists = newPlaylist;
 
             user.save()
-            .then((user) => {
-                user.populate("friends",["_id","name","username","photo"])
+            .then((newUser) => {
+                newUser.populate("friends",["_id","name","username","photo"])
                 .populate("pending",["_id","name","username","photo"])
                 .execPopulate().then(() => {
                     res.status(200)
-                    .json(user);
+                    .json(newUser);
                 }).catch((err) => {
                     res.status(400).json(err);
                 })
-                res.status(200).json(user);
             }).catch((err) => {
                 res.status(400).json(err);
             })
