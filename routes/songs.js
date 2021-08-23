@@ -85,6 +85,43 @@ router.post("/addSong",requireLogin,(req, res) => {
     });
 });
 
+router.post("/deletePlaylist",requireLogin,(req,res) => {
+
+    const {playlistId} = req.body;
+
+    Users.findById({
+        _id:req.user._id
+    }).then((user) => {
+        let playlistIndex = user.playlists.findIndex((playlist) => {
+            return playlist._id.toString() == playlistId
+        })
+
+        if(playlistIndex === -1){
+            res.status(400).json({
+                "message" : "Playlist doesnt exist"
+            })
+        }
+        else{
+            let newPlaylist  = user.playlists.filter((playlist) => {
+				return playlist._id.toString() !== playlistId
+			})
+
+            user.playlists = newPlaylist;
+
+            user.save()
+            .then((user) => {
+                res.status(200).json(user);
+            }).catch((err) => {
+                res.status(400).json(err);
+            })
+        }
+
+    }) 
+
+
+
+})
+
 //Add to liked songs
 router.post("/addToLikedSongs",requireLogin,(req,res) => {
     
