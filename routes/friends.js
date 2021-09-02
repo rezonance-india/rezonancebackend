@@ -206,4 +206,14 @@ router.post("/getAllUsers",requireLogin,(req,res) => {
     });
 })
 
+//Only to check count of live users
+router.get("/getUsers",(req,res) => {
+    Users.find({})
+    .then((data) => {
+        res.status(200).json(data);
+    }).catch((err) => {
+        res.status(400).json(err);
+    })
+})
+
 module.exports = router;
