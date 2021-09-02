@@ -1,6 +1,6 @@
 # User-backend
 
-This is the repository for the User backend of the project [Rezonance Backend](https://github.com/rezonance-india/rezonancebackend)
+This is the repository for the User backend of the project [Rezonance](https://github.com/rezonance-india/app)
 
 ### Prerequisites
 
@@ -17,7 +17,7 @@ git clone https://github.com/rezonance-india/rezonancebackend
 2. Install the packages
 
 ```sh
-yarn install
+npm install
 ```
 
 3. Make .env file and add the following required secret keys.
